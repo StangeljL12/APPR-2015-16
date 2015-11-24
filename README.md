@@ -1,4 +1,4 @@
-# Analiza podatkov s programom R, 2015/16
+# Analiza sklenjenih zakonskih zvez v Sloveniji
 
 Avtor: Štangelj Laura
 
@@ -6,8 +6,17 @@ Repozitorij z gradivi pri predmetu APPR v študijskem letu 2015/16.
 
 ## Tematika
 
-Izbrali si boste temo, s katero se bo vaš projekt ukvarjal. Tukaj boste
-napisali, kje ste dobili podatke, ter kakšen je vaš cilj.
+V projektu bom analizirala sklenitve zakonskih zvez v Sloveniji. Podatke sem dobila na spetni strani Statističnega urada RS. Osredotočila sem bom na sklenitve zakonske zveze glede na regijo prebivališča ženina in neveste, starost ženina in neveste ob prvi sklenitvi zakonske zveze, zakonski stan ženina in neveste pred poroko in na sklenitev zakonske zveze po mesecih.
+
+Povezave do tabel:
+
+    http://pxweb.stat.si/pxweb/Dialog/varval.asp?ma=05M2010S&ti=&path=../Database/Dem_soc/05_prebivalstvo/34_Poroke/10_05M20_poroke-RE-OBC/&lang=2 
+    http://pxweb.stat.si/pxweb/Dialog/varval.asp?ma=05M1016S&ti=&path=../Database/Dem_soc/05_prebivalstvo/34_Poroke/05_05M10_poroke-SL/&lang=2
+    http://pxweb.stat.si/pxweb/Dialog/varval.asp?ma=05M1008S&ti=&path=../Database/Dem_soc/05_prebivalstvo/34_Poroke/05_05M10_poroke-SL/&lang=2
+    http://pxweb.stat.si/pxweb/Dialog/varval.asp?ma=05M1012S&ti=&path=../Database/Dem_soc/05_prebivalstvo/34_Poroke/05_05M10_poroke-SL/&lang=2
+    
+Moj cilj je analizirati različne dejavnike zakonskih zvez v Sloveniji. Kakšne so najpogostejše starosti sklenitve prve zakonske zveze, kateri meseci so najbolj proljubljeni za sklenitev zakonske zveze, ali so bolj pogoste sklenitve zakonskih zvez parov iz istih regij ali iz različnih in pa koliko je takšnih, ki stopajo v zakonsko zvezo morda že drugič ali pa koliko vdovelih ljudi se odloči še enkrat združiti v zakonski stan.
+    
 
 ## Program
 
