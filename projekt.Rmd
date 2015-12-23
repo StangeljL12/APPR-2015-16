@@ -1,6 +1,6 @@
 ---
-title: "Poročilo pri predmetu Analiza podatkov s programom R"
-author: "Študent FMF"
+title: "Analiza sklenjenih zakonskih zvez v Sloveniji"
+author: "Laura Štangelj"
 output:
   pdf_document:
     latex_engine: xelatex
@@ -19,7 +19,18 @@ source("lib/libraries.r", encoding = "UTF-8")
 
 # Izbira teme
 
-Za vzorec bomo prikazali nekaj podatkov o slovenskih občinah.
+V projektu bom analizirala sklenitve zakonskih zvez v Sloveniji. Podatke sem dobila na spetni strani Statističnega urada RS. Osredotočila sem bom na sklenitve zakonske zveze glede na regijo prebivališča ženina in neveste, starost ženina in neveste ob prvi sklenitvi zakonske zveze in na sklenitev zakonske zveze po mesecih.
+
+Povezave do tabel:
+
+ - http://pxweb.stat.si/pxweb/Dialog/varval.asp?ma=05M1006S&ti=&path=../Database/Dem_soc/05_prebivalstvo/34_Poroke/05_05M10_poroke-SL/&lang=2
+ - http://pxweb.stat.si/pxweb/Dialog/varval.asp?ma=05M1012S&ti=&path=../Database/Dem_soc/05_prebivalstvo/34_Poroke/05_05M10_poroke-SL/&lang=2
+ - http://pxweb.stat.si/pxweb/Dialog/varval.asp?ma=05M1016S&ti=&path=../Database/Dem_soc/05_prebivalstvo/34_Poroke/05_05M10_poroke-SL/&lang=2
+ - http://www.stat.si/StatWeb/prikazi-novico?id=5241&idp=17&headerbar=15
+
+
+Moj cilj je analizirati različne dejavnike zakonskih zvez v Sloveniji. Kakšne so najpogostejše starosti sklenitve prve zakonske zveze, kateri meseci so najbolj priljubljeni za sklenitev zakonske zveze in ali so bolj pogoste sklenitve zakonskih zvez parov iz istih regij ali iz različnih.
+
 
 ***
 
@@ -29,57 +40,23 @@ Za vzorec bomo prikazali nekaj podatkov o slovenskih občinah.
 source("uvoz/uvoz.r", encoding = "UTF-8")
 ```
 
-Uvozili smo podatke o občinah v obliki CSV s statističnega urada ter v obliki HTML
-z Wikipedije. Poglejmo si začetka obeh uvoženih razpredelnic.
+Podatke sem uvozila iz Statističnega urada RS. Tri tabele sem uvozila v obliki CSV in eno v HTML.
 
-```{r razpredelnice}
-kable(head(druzine))
-head(obcine)
+Tabelo v obliki HTML sem preuredila, nekaj odvečnih vrstic, ki se ne tičejo sklenitve zvez sem zbrisala in nekaj sem jih preimenovala.
+
+``` {r tabela, echo=FALSE}
+kable(tabela1)
 ```
 
-Slika \ref{fig:histogram} prikazuje porazdelitev števila naselij v občinah.
+Prvo tabelo iz CSV, ki vsebuje podatke o sklenitvah zakonskih zvez po letih in mesecih nisem bistveno spreminjala. Iz nje sem uporabila podatke za graf, ki predstavlja skupno število sklenitve zakonskih zvez v sloveniji v letih od 1985 do 2014.
 
-```{r histogram, echo=FALSE, fig.align='center', fig.cap='Histogram števila naselij v občinah'}
-hist(obcine[,4], main = "Pogostost števila naselij",
-     xlab = "Število naselij", ylab = "Število občin")
+``` {r graf, echo=FALSE}
+ggplot(data = PoMesecih, aes(x= Leto, y= SKUPAJ))+geom_line(size=1, color='blue')+
+  ggtitle("Sklenitve zakonskih zvez po letih")
 ```
+
+Pri drugih dveh tabelah iz CSV, ki se nanašata na starost in prebivališče po regijah ženina in neveste, bom uporabila le podatke iz leta 2014. Zato sem pri urejanju tabele odvečne podatke zbrisala.
+
 
 ***
 
-# Analiza in vizualizacija podatkov
-
-```{r vizualizacija, echo=FALSE}
-source("vizualizacija/vizualizacija.r", encoding = "UTF-8")
-```
-
-Slika \ref{fig:zemljevid} prikazuje povprečno velikost družine za vsako občino.
-
-```{r zemljevid, echo=FALSE, fig.align='center', fig.cap='Zemljevid povprečnega števila otrok v družini'}
-n <- 100
-barve <- topo.colors(n)[1+(n-1)*(druzine$povprecje-min.povprecje)/(max.povprecje-min.povprecje)]
-plot(zemljevid, col = barve)
-title("Povprečno število otrok v družini")
-```
-
-***
-
-# Napredna analiza podatkov
-
-```{r analiza, echo=FALSE}
-source("analiza/analiza.r", encoding = "UTF-8")
-```
-
-Slika \ref{fig:graf} prikazuje povezavo med številom naselij in površino občine.
-
-```{r graf, echo=FALSE, fig.align='center', fig.cap='Povezava med številom naselij in površino občine'}
-plot(obcine[[1]], obcine[[4]],
-     main = "Število naselij glede na površino občine",
-     xlab = expression("Površina (km"^2 * ")"),
-     ylab = "Št. naselij",
-     col = barve[obcine[[7]]],
-     pch = 18)
-legend("topright", legend = names(barve), col = barve,
-       pch = 18, cex = 0.5, bg = "white")
-```
-
-***
