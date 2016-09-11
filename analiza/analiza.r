@@ -1,4 +1,8 @@
 # 4. faza: Analiza podatkov
 
-barve <- rainbow(length(levels(obcine[[7]])))
-names(barve) <- levels(obcine[[7]])
+podatki1 <- data.frame(PoMesecih %>% group_by(Leto) 
+                       %>% summarise(Sklenitve = sum(Št.sklenitev)))
+
+#apoved
+LMZ <- lm(data = podatki1, Sklenitve ~ Leto)
+Z <- predict(LMZ, data.frame(Leto = seq(2024, 2044, 10)))
