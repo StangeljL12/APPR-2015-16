@@ -1,13 +1,47 @@
 # 3. faza: Izdelava zemljevida
 
+# 3. faza: Izdelava zemljevida
+
+source("lib/uvozi.zemljevid.r", encoding = "UTF-8")
+library(ggplot2)
+library(dplyr)
+
+
 # Uvozimo zemljevid.
-zemljevid <- uvozi.zemljevid("http://e-prostor.gov.si/fileadmin/BREZPLACNI_POD/RPE/OB.zip",
-                             "OB/OB", encoding = "Windows-1250")
+zemljevid <- uvozi.zemljevid("http://biogeo.ucdavis.edu/data/gadm2.8/shp/SVN_adm_shp.zip",
+                             "SVN_adm1", encoding = "UTF-8")
+
 
 # Preuredimo podatke, da jih bomo lahko izrisali na zemljevid.
-druzine <- preuredi(druzine, zemljevid, "OB_UIME", c("Ankaran", "Mirna"))
 
-# Izračunamo povprečno velikost družine.
-druzine$povprecje <- apply(druzine[1:4], 1, function(x) sum(x*(1:4))/sum(x))
-min.povprecje <- min(druzine$povprecje, na.rm=TRUE)
-max.povprecje <- max(druzine$povprecje, na.rm=TRUE)
+pretvori.zemljevid <- function(zemljevid) {
+  fo <- fortify(zemljevid)
+  data <- zemljevid@data
+  data$id <- as.character(0:(nrow(data)-1))
+  return(inner_join(fo, data, by="id"))
+}
+
+
+ZEM <- pretvori.zemljevid(zemljevid)
+
+#Naredim zemljevid, ki prikazuje število sklenjenih zakonskih zvez glede na regijo
+ZEM_1 <- ggplot() + geom_polygon(data = group_by(Po_Regijah_Letih, Regija) 
+                                           %>% summarise(Število = sum(Število)) %>%
+                                             right_join(ZEM, by = c("Regija" = "NAME_1")),
+                                           aes(x = long, y = lat, group = group, fill = Število),
+                                           color = "darkgrey") +
+  scale_fill_gradient(low =  "#FF0000", high ="#11FF00")+
+  guides(fill = guide_colorbar(title = "Število sklenitev")) +
+  ggtitle("Število sklenitev po regijah")
+#IMENA REGIJ
+ZEM_1 <- ZEM_1 +
+  geom_text(data = ZEM %>% group_by(id, NAME_1) %>% summarise(x = mean(long), y = mean(lat)),
+            aes(x = x, y = y, label = NAME_1), size = 2.5)
+#OZADJE
+ZEM_1 <- ZEM_1 +
+  labs(x="", y="")+
+  scale_y_continuous(breaks=NULL)+
+  scale_x_continuous(breaks=NULL)+
+  theme_minimal()
+
+
