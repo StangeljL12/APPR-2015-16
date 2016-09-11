@@ -8,7 +8,7 @@ output:
       in_header: lib/styles.sty
 ---
 
-```{r setup, echo=FALSE, results='hide', message=FALSE}
+```{r setup, echo=FALSE, results='hide', message=FALSE, warning = FALSE}
 # Če želimo nastaviti pisave v PDF-ju, odkomentiramo
 # in sledimo navodilom v programu.
 #source("fontconfig.r", encoding = "UTF-8")
@@ -21,18 +21,16 @@ source("lib/libraries.r", encoding = "UTF-8")
 
 V projektu bom analizirala sklenitve zakonskih zvez v Sloveniji. Podatke sem dobila na spetni strani Statističnega urada RS. Osredotočila sem bom na sklenitve zakonske zveze glede na regijo prebivališča ženina in neveste, starost ženina in neveste ob prvi sklenitvi zakonske zveze in na sklenitev zakonske zveze po mesecih.
 
-Povezave do tabel:
+Povezave do tabel (klikni na besedo za odprtje povezave):
 
- - http://pxweb.stat.si/pxweb/Dialog/varval.asp?ma=05M1006S&ti=&path=../Database/Dem_soc/05_prebivalstvo/34_Poroke/05_05M10_poroke-SL/&lang=2
- - http://pxweb.stat.si/pxweb/Dialog/varval.asp?ma=05M1012S&ti=&path=../Database/Dem_soc/05_prebivalstvo/34_Poroke/05_05M10_poroke-SL/&lang=2
- - http://pxweb.stat.si/pxweb/Dialog/varval.asp?ma=05M1016S&ti=&path=../Database/Dem_soc/05_prebivalstvo/34_Poroke/05_05M10_poroke-SL/&lang=2
- - http://www.stat.si/StatWeb/prikazi-novico?id=5241&idp=17&headerbar=15
-
+ - [prva tabela](http://pxweb.stat.si/pxweb/Dialog/varval.asp?ma=05M1012S&ti=&path=../Database/Dem_soc/05_prebivalstvo/34_Poroke/05_05M10_poroke-SL/&lang=2)
+ - [druga tabela](http://pxweb.stat.si/pxweb/Dialog/varval.asp?ma=05M2008S&ti=&path=../Database/Dem_soc/05_prebivalstvo/34_Poroke/10_05M20_poroke-RE-OBC/&lang=2)
+ - [tabela - HTML](http://www.stat.si/StatWeb/prikazi-novico?id=5241&idp=17&headerbar=15)
 
 Moj cilj je analizirati različne dejavnike zakonskih zvez v Sloveniji. Kakšne so najpogostejše starosti sklenitve prve zakonske zveze, kateri meseci so najbolj priljubljeni za sklenitev zakonske zveze in ali so bolj pogoste sklenitve zakonskih zvez parov iz istih regij ali iz različnih.
 
 
-***
+\pagebreak
 
 # Obdelava, uvoz in čiščenje podatkov
 
@@ -40,23 +38,121 @@ Moj cilj je analizirati različne dejavnike zakonskih zvez v Sloveniji. Kakšne 
 source("uvoz/uvoz.r", encoding = "UTF-8")
 ```
 
-Podatke sem uvozila iz Statističnega urada RS. Tri tabele sem uvozila v obliki CSV in eno v HTML.
+Podatke sem uvozila iz Statističnega urada RS. Uvozila sem dve tabeli v obliki csv.
 
-Tabelo v obliki HTML sem preuredila, nekaj odvečnih vrstic, ki se ne tičejo sklenitve zvez sem zbrisala in nekaj sem jih preimenovala.
+Prva tabela prikazuje število sklenjenih zakonskih zvez, glede na mesec in leto. Tabelo sem uvozila predvsem z namenom, da ugotovim, kako se spreminja število porok v času in da vidim, kateri meseci so bolj pogosti kot drugi.
 
-``` {r tabela, echo=FALSE}
-kable(tabela1)
+Tabelo sem uvozila s funkcijo `read.csv2`. Najprej sem morala prazne prostore dopolniti za `NA`, da sem potem lahko uporabila funkcijo `na.locf`, s pomočjo katere sem dopolnila vrednosti po stolpcih. To sem naredila za vse stolpce, razen zadnjega, ki pa ga nisem dopolnila z namenom, da sem lahko nepotrebne vrstice zbrisala. To so bile vse vrstice, ki so bile prazne v zadnjem stolpcu.
+
+Stolpci v tabeli so: 
+
+  * Leto (1990-2014): številska spremenljivka
+  * Mesec: faktor
+  * Meritev: število sklenitev
+
+
+Glava tabele:
+``` {r tabela1, echo=FALSE}
+kable(head(PoMesecih))
 ```
 
-Prvo tabelo iz CSV, ki vsebuje podatke o sklenitvah zakonskih zvez po letih in mesecih nisem bistveno spreminjala. Iz nje sem uporabila podatke za graf, ki predstavlja skupno število sklenitve zakonskih zvez v sloveniji v letih od 1985 do 2014.
+Druga tabela pa prikazuje podatke glede na spol, regijo, starostno skupino ter glede na leto. Uvozila sem jo na enak način, kot prvo tabelo.
 
-``` {r graf, echo=FALSE}
-ggplot(data = PoMesecih, aes(x= Leto, y= SKUPAJ))+geom_line(size=1, color='blue')+
-  ggtitle("Sklenitve zakonskih zvez po letih")
+Za regije sem vzela statistične regije, torej:
+
+- Gorenjska
+- Goriška
+- Jugovzhodna Slovenija
+- Koroška
+- Notranjsko-kraška
+- Obalno-kraška
+- Osrednjeslovenska
+- Podravska
+- Pomurska
+- Savinjska
+- Spodnjeposavska
+- Zasavska
+
+Starostne skupine so bile razdeljene v skupine:
+
+* Pod 15 let
+* 15-19 let
+* 20-24 let
+* 25-29 let
+* 30-34 let
+* 35-39 let
+* 40-44 let
+* 45-49 let
+* 50-54 let
+* 55-59 let
+* 60 ali več let
+
+Ker starostne skupine niso bile zaznane po vrstnem redu, sem jih morala urediti, tako da sem določila nivoje faktorja.
+
+Za Leti sem vzela le leti 2004 in 2014 za primerjanje podatkov o starosti ženina/neveste glede na čas.
+
+Spremenljivke po stolpcih druge tabele so torej:
+
+  * Spol(Ženin/Nevesta): imenska spremenljivka
+  * Regija: faktor (z dvanajstimi nivoji)
+  * Starostna skupina: faktor (z enajstimi nivoji) 
+  * Leto (2004/2014): številska spremenljivka
+  * Meritev: število sklenitev
+
+Glava tabele: 
+
+``` {r tabela2, echo=FALSE}
+kable(head(Po_Regijah_Letih))
 ```
 
-Pri drugih dveh tabelah iz CSV, ki se nanašata na starost in prebivališče po regijah ženina in neveste, bom uporabila le podatke iz leta 2014. Zato sem pri urejanju tabele odvečne podatke zbrisala.
+\pagebreak
+
+#Vizualizacija podatkov
+
+##Grafi
+
+Najprej sem se odločila narisati graf, ki prikazuje število porok, glede na mesec, ter ločila podatke glede na leto 1990 in leto 2014, če bi bilo opaziti kaj sprememb. Zato, da sem lahko narisala graf glede na ti dve leti, pa sem morala spremeniti spremenljivko "Leto" iz imenske v faktor. Potem sem narisala spodnji graf s pomočjo funkcije `ggplot`:
+
+``` {r graf1, echo=FALSE}
+plot(GRAF1)
+```
+
+Kot vidimo v grafu, so bolj popularni toplejši meseci, najbolj pa iztopajo Maj, Junij in September. To me ni preveč presenetilo, saj je takrat primerno ozračje, ko ni premraz ali pretoplo. Takoj pa sem tudi opazila, da je bilo leta 1990 veliko več porok nasploh, kar pa se ne pozna na prej omenjenih mesecih, kjer je število porok leta 1990 in 2014 podobno. Precej več porok je bilo leta 1990 v hladnejših mesecih, predvsem v mesecu Aprilu. 
+
+\pagebreak
+
+Drugi graf prikazuje število porok po starostnih skupinah, glede na leto 2004 ali leto 2014. 
+
+``` {r graf2, echo=FALSE}
+plot(GRAF2)
+```
+
+V grafu opazimo, da se leti 2004 in 2014 sekata in sicer ke najprej črta za leto 2004 nad tisto za leto 2014, malo pred starostno skupino 30-34let pa se sekata. To ne pomeni nič drugega, kot da so se v letu 2014 poročali starejši kot v letu 2004. Sicer ni večjih razlik, saj je vmes le 10 let, pa vendar lahko vidimo posledico sodobnejšega načina življenja, ko se nasplošno pari poročijo in ustvarjajo družino kasneje, kot je bilo to včasih.
+
+\pagebreak
+
+Za tretji graf sem vzela leta 1990, 2000 in 2014 in naredila torni diagram. V njem sem prikazala tudi procente, za lažje odčitavanje:
+
+``` {r graf3, echo=FALSE}
+plot(GRAF3)
+```
+
+Vidimo, da procent števila porok z letom upada, kar je bilo pričakovano. Majšo razliko smo videli že v prvem grafu, tu pa se razlika bolj opazi.
+
+\pagebreak
+
+V četrtem grafu sem prikazala starost ženina ali neveste ob poroki, oziroma v katero starostno skupino spada.
+
+``` {r graf4, echo=FALSE}
+plot(GRAF4)
+```
+
+Vidimo, da se ženske poročajo mlajše kot moški, kar pa je najverjetneje posledica tega, da ženin in nevesta nista vedno enako stara, ampak je ponavadi ženin nekaj let starejši. 
+
+
+
 
 
 ***
+
 
