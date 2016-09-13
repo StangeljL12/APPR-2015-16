@@ -120,4 +120,4 @@ LMR <- lm(data = razveze %>%
 R <- predict(LMR, data.frame(Leto = seq(2015, 2025, 1)))
 
 #SKUPAJ NAPOVED TABELA
-NAPOVED  <- data.frame("Poroke" = P, "Ločitve" = R, row.names = (2015:2025))
+NAPOVED  <- data.frame("Poroke" = as.integer(P), "Ločitve" = as.integer(R), row.names = (2015:2025))
