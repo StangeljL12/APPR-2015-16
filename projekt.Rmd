@@ -2,10 +2,9 @@
 title: "Analiza sklenjenih zakonskih zvez v Sloveniji"
 author: "Laura Štangelj"
 output:
-  pdf_document:
-    latex_engine: xelatex
-    includes:
-      in_header: lib/styles.sty
+  html_document:
+    toc: TRUE
+    number_sections: TRUE
 ---
 
 ```{r setup, echo=FALSE, results='hide', message=FALSE, warning = FALSE}
@@ -19,26 +18,31 @@ source("lib/libraries.r", encoding = "UTF-8")
 
 # Izbira teme
 
-V projektu bom analizirala sklenitve zakonskih zvez v Sloveniji. Podatke sem dobila na spetni strani Statističnega urada RS. Osredotočila sem bom na sklenitve zakonske zveze glede na regijo prebivališča ženina in neveste, starost ženina in neveste ob prvi sklenitvi zakonske zveze in na sklenitev zakonske zveze po mesecih.
+V projektu bom analizirala sklenitve zakonskih zvez v Sloveniji. Podatke sem dobila na spetni strani Statističnega urada RS in na spletni strani `www.cdc.gov`. Osredotočila sem bom na sklenitve zakonske zveze glede na regijo, starost ženina in neveste ob sklenitvi zakonske zveze in na sklenitev zakonske zveze po mesecih.
 
 Povezave do tabel (klikni na besedo za odprtje povezave):
 
  - [prva tabela](http://pxweb.stat.si/pxweb/Dialog/varval.asp?ma=05M1012S&ti=&path=../Database/Dem_soc/05_prebivalstvo/34_Poroke/05_05M10_poroke-SL/&lang=2)
  - [druga tabela](http://pxweb.stat.si/pxweb/Dialog/varval.asp?ma=05M2008S&ti=&path=../Database/Dem_soc/05_prebivalstvo/34_Poroke/10_05M20_poroke-RE-OBC/&lang=2)
- - [tabela - HTML](http://www.stat.si/StatWeb/prikazi-novico?id=5241&idp=17&headerbar=15)
+ - [tretja tabela](http://pxweb.stat.si/pxweb/Dialog/varval.asp?ma=05M4004S&ti=&path=../Database/Dem_soc/05_prebivalstvo/36_Razveze/10_05M40_razveze-RE-OBC/&lang=2)
+ - [tabela - ZDA](http://www.cdc.gov/nchs/nvss/marriage_divorce_tables.htm)
 
-Moj cilj je analizirati različne dejavnike zakonskih zvez v Sloveniji. Kakšne so najpogostejše starosti sklenitve prve zakonske zveze, kateri meseci so najbolj priljubljeni za sklenitev zakonske zveze in ali so bolj pogoste sklenitve zakonskih zvez parov iz istih regij ali iz različnih.
+Moj cilj je analizirati različne dejavnike zakonskih zvez v Sloveniji. Kakšne so najpogostejše starosti sklenitve zakonske zveze, kateri meseci so najbolj priljubljeni za sklenitev zakonske zveze ter katera regija je najbolj pogosta.
 
 
 \pagebreak
 
 # Obdelava, uvoz in čiščenje podatkov
 
-```{r uvoz, echo=FALSE}
+```{r uvoz, echo=FALSE, warning=FALSE}
 source("uvoz/uvoz.r", encoding = "UTF-8")
 ```
 
-Podatke sem uvozila iz Statističnega urada RS. Uvozila sem dve tabeli v obliki csv.
+Uvozila sem podatke v obliki csv in v obliki html.
+
+Podatke  obliki csv sem uvozila iz Statističnega urada RS. Uvozila sem tri tabele.
+
+## Prva tabela {.smaller}
 
 Prva tabela prikazuje število sklenjenih zakonskih zvez, glede na mesec in leto. Tabelo sem uvozila predvsem z namenom, da ugotovim, kako se spreminja število porok v času in da vidim, kateri meseci so bolj pogosti kot drugi.
 
@@ -55,6 +59,8 @@ Glava tabele:
 ``` {r tabela1, echo=FALSE}
 kable(head(PoMesecih))
 ```
+
+##Druga tabela{.smaller}
 
 Druga tabela pa prikazuje podatke glede na spol, regijo, starostno skupino ter glede na leto. Uvozila sem jo na enak način, kot prvo tabelo.
 
@@ -89,20 +95,58 @@ Starostne skupine so bile razdeljene v skupine:
 
 Ker starostne skupine niso bile zaznane po vrstnem redu, sem jih morala urediti, tako da sem določila nivoje faktorja.
 
-Za Leti sem vzela le leti 2004 in 2014 za primerjanje podatkov o starosti ženina/neveste glede na čas.
-
 Spremenljivke po stolpcih druge tabele so torej:
 
   * Spol(Ženin/Nevesta): imenska spremenljivka
   * Regija: faktor (z dvanajstimi nivoji)
   * Starostna skupina: faktor (z enajstimi nivoji) 
-  * Leto (2004/2014): številska spremenljivka
+  * Leto (2003:2014): številska spremenljivka
   * Meritev: število sklenitev
 
 Glava tabele: 
 
 ``` {r tabela2, echo=FALSE}
 kable(head(Po_Regijah_Letih))
+```
+
+##Tretja tabela{.smaller}
+
+Tretjo tabelo sem uvozila kasneje, z namenom analize povezanosti med ločitvami in porokami. Tretja tabela tako prikazuje število ločitev glede na leto in statistično regijo.
+
+Uvozila sem jo na enak način kot prvo in drugo.
+
+Spremenljivke po stolpcih:
+
+  * Regija (statistične regije): faktor
+  * Leto(1995:2013): faktor
+  * Meritev: število ločitev
+
+\pagebreak
+
+Glava tabele:
+
+``` {r tabela3, echo=FALSE}
+kable(head(razveze))
+```
+
+##Tabela html{.smaller}
+
+Uvozila sem tudi dve tabeli v obliki html, z namenom primerjave ločitev in porok pri nas in v ZDA. Prva tabela vsebuje podatke o številu porok po letih v ZDA, druga tabela pa število ločitev po letih v ZDA.
+
+Spremenljivke v prvi tabeli (po stolpcih):
+
+  * Leto (2000:2014): faktor
+  * Meritev: število porok
+  
+Spremenljivke v drugi tabeli (po stolpcih):
+
+  * Leto (2000:2014): faktor
+  * Meritev: število ločitev
+  
+Tabeli:
+
+``` {r tabeliHTML, echo=FALSE}
+grid.arrange(tableGrob(poroke.USA, rows = rep("",length(poroke.USA$Leto))), tableGrob(locitve.USA, rows = rep("",length(locitve.USA$Leto))), ncol = 2)
 ```
 
 \pagebreak
@@ -117,31 +161,31 @@ Najprej sem se odločila narisati graf, ki prikazuje število porok, glede na me
 plot(GRAF1)
 ```
 
-Kot vidimo v grafu, so bolj popularni toplejši meseci, najbolj pa iztopajo Maj, Junij in September. To me ni preveč presenetilo, saj je takrat primerno ozračje, ko ni premraz ali pretoplo. Takoj pa sem tudi opazila, da je bilo leta 1990 veliko več porok nasploh, kar pa se ne pozna na prej omenjenih mesecih, kjer je število porok leta 1990 in 2014 podobno. Precej več porok je bilo leta 1990 v hladnejših mesecih, predvsem v mesecu Aprilu. 
+Kot vidimo v grafu, so bolj popularni toplejši meseci, najbolj pa iztopajo Maj, Junij in September. To me ni preveč presenetilo, saj je takrat primerno ozračje, ko ni premrzlo ali pretoplo. Takoj pa sem tudi opazila, da je bilo leta 1990 veliko več porok nasploh, kar pa se ne pozna na prej omenjenih mesecih, kjer je število porok leta 1990 in 2014 podobno. Precej več porok je bilo v hladnejših mesecih, predvsem v mesecu Aprilu. 
 
 \pagebreak
 
-Drugi graf prikazuje število porok po starostnih skupinah, glede na leto 2004 ali leto 2014. 
+Drugi graf prikazuje število porok po starostnih skupinah, glede na leto 2004 in leto 2014. 
 
 ``` {r graf2, echo=FALSE}
 plot(GRAF2)
 ```
 
-V grafu opazimo, da se leti 2004 in 2014 sekata in sicer ke najprej črta za leto 2004 nad tisto za leto 2014, malo pred starostno skupino 30-34let pa se sekata. To ne pomeni nič drugega, kot da so se v letu 2014 poročali starejši kot v letu 2004. Sicer ni večjih razlik, saj je vmes le 10 let, pa vendar lahko vidimo posledico sodobnejšega načina življenja, ko se nasplošno pari poročijo in ustvarjajo družino kasneje, kot je bilo to včasih.
+V grafu opazimo, da se leti 2004 in 2014 sekata in sicer je najprej krivulja za leto 2004 nad tisto za leto 2014, malo pred starostno skupino 30-34let pa se sekata. To ne pomeni nič drugega, kot da so se v letu 2014 poročali starejši kot v letu 2004. Sicer ni večjih razlik, saj je vmes le 10 let, pa vendar lahko vidimo posledico sodobnejšega načina življenja, ko se nasplošno pari poročijo in ustvarjajo družino kasneje, kot je bilo to včasih.
 
 \pagebreak
 
-Za tretji graf sem vzela leta 1990, 2000 in 2014 in naredila torni diagram. V njem sem prikazala tudi procente, za lažje odčitavanje:
+Za tretji graf sem vzela leta 1990, 2000 in 2014 in naredila tortni diagram. V njem sem prikazala tudi procente, za lažje odčitanje:
 
 ``` {r graf3, echo=FALSE}
 plot(GRAF3)
 ```
 
-Vidimo, da procent števila porok z letom upada, kar je bilo pričakovano. Majšo razliko smo videli že v prvem grafu, tu pa se razlika bolj opazi.
+Vidimo, da procent števila porok z letom upada, kar je bilo pričakovano. Majšo razliko smo videli že v prvem grafu, tu pa se razlika še toliko bolj opazi.
 
 \pagebreak
 
-V četrtem grafu sem prikazala starost ženina ali neveste ob poroki, oziroma v katero starostno skupino spada.
+V četrtem grafu sem prikazala starost ženina in neveste ob poroki, oziroma v katero starostno skupino spadata.
 
 ``` {r graf4, echo=FALSE}
 plot(GRAF4)
@@ -149,10 +193,91 @@ plot(GRAF4)
 
 Vidimo, da se ženske poročajo mlajše kot moški, kar pa je najverjetneje posledica tega, da ženin in nevesta nista vedno enako stara, ampak je ponavadi ženin nekaj let starejši. 
 
+\pagebreak
 
+##Zemljevid
+```{r vizualizacija, echo=FALSE, warning=FALSE, message=FALSE}
+source("vizualizacija/vizualizacija.r", encoding = "UTF-8")
+```
 
+V sklopu vizualizacije sem naredila tudi zemljevid, ki prikazuje kje se pari največ oziroma najmanj poročajo, glede na statistične regije v Sloveniji.Tako sem zemljevid pobarvala z svetlejšimi barvami tam kjer je manj porok ter z bolj temnimi tam, kjer je večje število porok. Na zemljevid sem dodala še imena regij.
 
+``` {r zem1, echo=FALSE}
+plot(ZEM_1)
+```
 
-***
+Kot opazimo, najbolj iztopa Osrednjeslovenska regija, ki je obravana najbolj temno rdeče. To pomeni, da je bilo tam največ porok. Najmanj porok pa je bilo v regijah, ki so obarvane z belo barvo, torej: Zasavska, Notranjo-kraška. Sklepam, da je to posledica tega, da ima Osrednjeslovenska regija največ prebivalcev.
 
+\pagebreak
+
+#Analiza
+
+```{r analiza, echo=FALSE, warning=FALSE, message=FALSE}
+source("analiza/analiza.r", encoding = "UTF-8")
+```
+
+Za končno analizo sem si izbrala tri različna področja, ki sem jih analizirala.
+
+##Ločitve - Poroke
+
+Najprej sem iskala povezave med številom ločitev ter porok pri nas in v ZDA, ter to dvoje tudi primerjala. 
+
+Za povezavo pri nas sem sem združila dve tabeli in sicer prvo tabelo ter tretjo tabelo, tako da sem grupirala podatke po letih. Potem sem narisala graf, ki prikazuje število porok in ločitev za vsako leto ter uporabila funkcijo `geom_smooth`:
+
+``` {r povezava1, echo=FALSE}
+plot(GRAF5)
+```
+
+Iz grafa vidimo je število porok negativno povezano s številom ločitev, kar me je zelo presenetilo. Za lažje razumevanje sem tako narisala še en graf, ki prikazuje število porok in ločitev za nekaj let:
+
+``` {r povezava2, echo=FALSE}
+plot(GRAF6)
+```
+
+Leta 1995 je bilo glede na ostala leta zelo veliko število porok ter manjše število ločitev. Ravno obratno pa velja za leto 2013, medtem ko je leto 2000 ravno nekje med temi leti. Sklepamo torej lahko, da z leti narašča število ločitev in pada število porok.
+
+Za primerjavo podatkov v ZDA pa sem združila tabeli s podatki o številu porok in ločitev v ZDA.
+
+Enako kot za Slovenijo, sem tudi tukaj narisala graf, ki prikazuje število ločitev in porok ter uporabila funkcijo `geom_smooth`:
+
+``` {r povezava3, echo=FALSE}
+plot(GRAF7)
+```
+
+Zanimivo je, da tu velja obratna povezava kot v Sloveniji, saj sta očitno število porok in ločitev pozitivno povezani. Prav tako sem se tu odločila, da narišem še graf za nekaj let posebej:
+
+``` {r povezava4, echo=FALSE}
+plot(GRAF8)
+```
+
+Iz grafa vidimo, da v ZDA pada tako število porok kot število ločitev. 
+
+\pagebreak
+
+##Grupiranje in centeroidi
+
+V drugem delu sem se odločila, da bom regije razdelila na več skupin, glede na število ločitev in porok.
+
+Najprej sem združila drugo tabelo in tabelo s podatki o ločitvah. Tabeli sem najprej vsako posebej grupirala po letih, in jih združila z funkcijo `inner_join`.
+
+Potem sem regije razdelila na 4 skupine, glede na oddaljenost od povprečja podatkov, ter poiskala centeroide za vsako skupino.
+
+``` {r grupiranje, echo=FALSE}
+plot(ZEM2)
+```
+
+Skupine me niso presenetile, saj smo že v prejšnjem zemljevidu videli, katere regije imajo podobno število porok. Osrednjeslovenska regija je skupina zase, najverjetneje zato, ker ima izrazito več porok. 
+
+\pagebreak
+
+##Napoved
+
+Nazadnje sem se odločila, da naredim napoved za število porok in ločitev od leta 2015 do leta 2025. Pomagala sem si s funkcijo `predict`.
+
+Tako sem dobila novo tabelo:
+``` {r napoved, echo=FALSE}
+kable(NAPOVED)
+```
+
+Ker je število porok padalo z leti, se to nadaljuje tudi v napovedi, prav tako pa narašča število ločitev.
 

@@ -24,15 +24,19 @@ pretvori.zemljevid <- function(zemljevid) {
 
 ZEM <- pretvori.zemljevid(zemljevid)
 
+
+##Spremenim imena regij v tabeli Po_Regijah_Letih, da se bodo skladali z imeni zemljevida
+
 #Naredim zemljevid, ki prikazuje število sklenjenih zakonskih zvez glede na regijo
 ZEM_1 <- ggplot() + geom_polygon(data = group_by(Po_Regijah_Letih, Regija) 
-                                           %>% summarise(Število = sum(Število)) %>%
+                                           %>% summarise(Število = sum(Število)/2) %>%
                                              right_join(ZEM, by = c("Regija" = "NAME_1")),
                                            aes(x = long, y = lat, group = group, fill = Število),
                                            color = "darkgrey") +
-  scale_fill_gradient(low =  "#FF0000", high ="#11FF00")+
+  scale_fill_gradient(low =  "white", high ="red")+
   guides(fill = guide_colorbar(title = "Število sklenitev")) +
   ggtitle("Število sklenitev po regijah")
+
 #IMENA REGIJ
 ZEM_1 <- ZEM_1 +
   geom_text(data = ZEM %>% group_by(id, NAME_1) %>% summarise(x = mean(long), y = mean(lat)),

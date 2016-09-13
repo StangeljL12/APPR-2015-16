@@ -12,6 +12,8 @@ library(mgcv)
 library(magrittr)
 library(httr)
 library(scales)
+library(gridExtra)
+
 
 # Uvozimo funkcije za delo z datotekami XML.
 source("lib/xml.r", encoding = "UTF-8")
