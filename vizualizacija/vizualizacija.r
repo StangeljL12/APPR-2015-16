@@ -1,7 +1,5 @@
 # 3. faza: Izdelava zemljevida
 
-# 3. faza: Izdelava zemljevida
-
 source("lib/uvozi.zemljevid.r", encoding = "UTF-8")
 library(ggplot2)
 library(dplyr)

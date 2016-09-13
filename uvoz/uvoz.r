@@ -8,7 +8,7 @@ source("lib/libraries.r", encoding = "UTF-8")
 
 
 stolpci1 <- c("Leto", "Mesec", "Št.sklenitev")
-PoMesecih <-read.csv2("podatki/pomesecih.csv", sep = ";", as.is = TRUE, header = FALSE,
+PoMesecih <-read.csv2("podatki/PoMesecih.csv", sep = ";", as.is = TRUE, header = FALSE,
                       col.names = stolpci1, skip = 2, nrows = (372-3), fileEncoding = "cp1250")
 
 #zapolnimo prazne prostore z NA in potem nadomestimo z vrednostmi, ki ji pripradajo:
@@ -133,7 +133,7 @@ Po_Regijah_Letih$Leto <- as.factor(Po_Regijah_Letih$Leto)
 GRAF2 <- ggplot(data = Po_Regijah_Letih %>% 
                   filter(Leto == "2004" | Leto == "2014") %>%
                   group_by(Starost, Leto) %>%
-                  summarise(Število = sum(Število)/2),
+                  summarise(Število = sum(Število)),
                 aes(x=Starost, y=Število, color=Leto)) + 
   geom_line(aes(color = Leto, group=Leto))+
   labs(title ="Sklenitve zakonskih zvez po starostnih skupinah")+
