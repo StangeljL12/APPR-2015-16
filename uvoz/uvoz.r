@@ -1,6 +1,7 @@
 # Uvozimo knižnjice
 source("lib/libraries.r", encoding = "UTF-8")
 
+###########################################CSV#############################################
 
 
 #tabela po mesecih
@@ -39,7 +40,7 @@ PoMesecih$Leto <- as.numeric(PoMesecih$Leto)
 stolpci2 <- c("Spol", "Regija", "Starost", "Leto", "Število")
 Po_Regijah_Letih <- read.csv2("podatki/poregijahinletih.csv", sep = ";", as.is = TRUE,
                               header = FALSE, col.names = stolpci2,
-                              skip = 3, nrows = (821-3), fileEncoding = "cp1250")
+                              skip = 3, nrows = (3461-3), fileEncoding = "cp1250")
 
 
 #Urejanje - NA:
@@ -63,72 +64,56 @@ Po_Regijah_Letih$Starost <- Starost
 Po_Regijah_Letih$Regija <- as.factor(Po_Regijah_Letih$Regija)
 
 
+##Uvozim tabelo ločitve:
+stolpci3 <- c("Regija", "Leto", "Razveze")
+razveze <- read.csv2("podatki/razveze.csv", sep = ";", as.is = TRUE,
+                              header = FALSE, col.names = stolpci3,
+                              skip = 4, nrows = (244-4), fileEncoding = "cp1250")
 
 
+#Urejanje - NA:
 
-
-##Naredim novo tabelo iz tabele Po_Regijah_Letih tako da vzamem samo Regije in starostno skupino
-Starost_Regije <- Po_Regijah_Letih %>% group_by(Regija, Starost) %>% summarise(Število = sum(Število))
-
-#Tvorim novo tabelo, kjer bo prikazana najbolj pogosta starost za posamezno regijo
-Tabela <- data.frame(Regija = levels(Po_Regijah_Letih$Regija), Starost = rep("starost"))
-
-Starost_stopnje <- rep('srednje', length(Tabela$Regija))
-Starost <- factor(Starost_stopnje,levels = c('mladi', 'srednje', 'stari'),ordered = TRUE)
-
-Mladi <- c("Pod 15 let", "15-19 let", "20-24 let", "25-29 let")
-Srednje <- c("35-39 let", "40-44 let", "45-49 let")
-Stari <- c("50-54 let", "55-59 let", "60 ali več let")
-
-for (i in levels(Tabela$Regija)){
-  a <- Po_Regijah_Letih %>% group_by(Regija, Starost) %>% summarise(Število = sum(Število)) %>%
-    filter(Regija == i, Število == max(Število))
-  a <- a$Starost
-  Tabela[[i]][Tabela[i] == "starost"] <- a
+for (i in stolpci3[c(-3)]){
+  razveze[[i]][razveze[i] == " "] <- NA
+  razveze[[i]] <- na.locf(razveze[[i]], na.rm = FALSE)
 }
 
-Visina.stopnje <- rep('normalna', length(Umrli_stopnje$Groba.stopnja.umrljivosti))
-Stopnja <- factor(Visina.stopnje,levels = c('nizka', 'normalna', 'visoka'),ordered = TRUE)
-Stopnja[Umrli_stopnje$Groba.stopnja.umrljivosti <= 1000] <- 'nizka'
-Stopnja[Umrli_stopnje$Groba.stopnja.umrljivosti >= 1600] <- 'visoka'
-Umrli_stopnje$Stopnja <- Stopnja
 
-#Tabela iz HTML
+#izbrišemo vrstice, ki so NA v zadnjem stolpcu:
 
-#link <- "http://www.stat.si/StatWeb/prikazi-novico?id=5241&idp=17&headerbar=15" 
+razveze <- razveze[!is.na(razveze$Razveze),]
+
+razveze$Leto <- razveze$Leto %>% as.character() %>% as.factor()
 
 
-#stran <- html_session(link) %>% read_html(encoding = "UTF-8") 
-#tabele <- stran %>% html_nodes(xpath ="//table[@rules='all']") 
-#tabela1 <- tabele %>% .[[1]] %>% html_table()  
 
-#names(tabela1)<- tabela1[1,] 
-#tabela1 = tabela1[-1,] 
-#tabela1 = tabela1[-3,] 
-#tabela1 = tabela1[-5,]
-#tabela1 = tabela1[-7,]
-#tabela1 = tabela1[-10,]
-#Encoding(tabela1[[1]]) <- "UTF-8" 
-#tabela1[2,1] <- 'Sklenitve zakonskih zvez na 1000 prebivalcev' 
-#tabela1[3,1] <- 'Povprečna starost ženina' 
-#tabela1[4,1] <- 'Povprečna starost neveste'
-#tabela1[5,1] <- 'Povprečna starost ob sklenitvi prve zakonske zveze ženina'
-#tabela1[6,1] <- 'Povprečna starost ob sklenitvi prve zakonske zveze neveste'
-#tabela1[7,1] <- 'Registrirane istospolne partnerske skupnosti'
-#tabela1[8,1] <- 'Registrirane istospolne partnerske skupnosti med miškima'
-#tabela1[9,1] <- 'Registrirane istospolne partnerske skupnosti med ženskama'
-#tabela1 = tabela1[-10,]
-#tabela1 = tabela1[-10,]
-#tabela1 = tabela1[-10,]
+###########################################HTML#############################################
+link <- "http://www.cdc.gov/nchs/nvss/marriage_divorce_tables.htm" 
+stran <- html_session(link) %>% read_html(encoding = "UTF-8") 
 
-#tabela1[,2:3] <- apply(tabela1[,2:3], 2, . %>% gsub("\\.", "", .) %>% 
- #                        gsub(",", ".", .) %>% 
-  #                       as.numeric()) 
+tabele <- stran %>% html_nodes(xpath ="//table") 
+poroke.USA <- tabele %>% .[[1]] %>% html_table()  
+locitve.USA <- tabele %>% .[[2]] %>% html_table()  
+
+#Potrebujem le prve dva stolpca
+poroke.USA <- poroke.USA[,c(1,2)]
+locitve.USA <- locitve.USA[,c(1,2)]
+
+names(poroke.USA) <- c("Leto", "Poroke")
+names(locitve.USA) <- c("Leto", "Ločitve")
+
+#V drugem stolpcu moram izbrisati vejice
+poroke.USA$Poroke <- poroke.USA$Poroke %>% gsub("\\,", "", .) %>% as.numeric()
+locitve.USA$Ločitve <- locitve.USA$Ločitve %>% gsub("\\,", "", .) %>% as.numeric()
+
+#V prvem stolpcu moram poporaviti letnice, saj so se zraven uvozile še opombe kot številke
+poroke.USA$Leto <- poroke.USA$Leto %>% substr(1,4) %>% as.factor()
+locitve.USA$Leto <- locitve.USA$Leto %>% substr(1,4) %>% as.factor()
 
 
 
 
-## GRAFI:
+################################GRAFI######################################################
 
 #Prvi graf bo prikazoval število sklenitev glede na mesec ter primerjal leti 1990 in 2014
 #Najprej leto spremenimo v FAKTOR, da bomo lahko primerjali leto 1990 in leto 2014
@@ -145,8 +130,10 @@ GRAF1 <- ggplot(filter(PoMesecih, Leto == 1990 | Leto == 2014), aes(x=Mesec, y=�
 ##Drugi graf narišem glede na starost in spet primerjam leto, ponovno spremenim leto v faktor
 Po_Regijah_Letih$Leto <- as.factor(Po_Regijah_Letih$Leto)
 
-GRAF2 <- ggplot(data = group_by(Po_Regijah_Letih,Starost, Leto)
-                %>% summarise(Število = sum(Število)),
+GRAF2 <- ggplot(data = Po_Regijah_Letih %>% 
+                  filter(Leto == "2004" | Leto == "2014") %>%
+                  group_by(Starost, Leto) %>%
+                  summarise(Število = sum(Število)/2),
                 aes(x=Starost, y=Število, color=Leto)) + 
   geom_line(aes(color = Leto, group=Leto))+
   labs(title ="Sklenitve zakonskih zvez po starostnih skupinah")+
@@ -159,7 +146,7 @@ GRAF2 <- ggplot(data = group_by(Po_Regijah_Letih,Starost, Leto)
 GRAF3 <- ggplot(data = PoMesecih %>% filter(Leto == 1990 |Leto == 2000 |Leto == 2014) %>%
                   group_by(Leto) %>% summarise(Št.sklenitev = sum(Št.sklenitev)),
                 aes(x="", y=Št.sklenitev, fill=Leto)) + 
-  geom_bar(width = 1,, stat = "identity") + 
+  geom_bar(width = 1, stat = "identity") + 
   geom_text(aes(y = Št.sklenitev/3 + 
                   c(0, cumsum(Št.sklenitev)[-length(Št.sklenitev)]), 
                 label = percent(Št.sklenitev/sum(Št.sklenitev))), size=5)+
